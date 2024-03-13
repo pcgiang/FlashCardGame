@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+  <title> Flash Card </title>
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(232, 249, 249);
+        }
+        
+        .body-container {
+			display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+		}
+        
+        .flash-card-container {
+      		width: 150px;
+            height: 150px;
+            background-color: #ffffff;
+            border: 2px solid #333333;
+          	display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    	}
+
+        .flash-card-container p {
+            font-size: 90px;
+            margin: 0;
+        }
+
+        .flash-card-container input[type="number"] {
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            font-size: 90px;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        input:focus{
+        outline: none;
+	    }
+
+        .container .btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 20px;
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .container button:hover {
+            background-color: #45a049;
+        }
+        
+        .correctResult {
+			display: none;	
+		}
+		
+		.wrongResult {
+			display: none;
+		}
+		
+		.calculation-qn {
+			display: none;
+		}
+		
+		.topnav {
+			overflow: hidden;
+			background-color: #333;
+		}
+		
+		.topnav a {
+			float: right;
+		    display: block;
+		    color: #f2f2f2;
+		    text-align: center;
+		    padding: 14px 16px;
+		    text-decoration: none;
+		}
+    </style>
+</head>
+
+<body>
+	<div class="topnav" >
+		<a href="/login" class="mr-3"> Log in</a>
+		<a href="/createProfile"> Create Profile</a>
+	</div>
+	<div class="body-container">
+		<h1 class="mb-2"> Flash Fun with Math! </h1>
+		<button onclick="startTimer()" class="btn btn-primary mb-3" id="startTimerBtn"> Let's go! </button>
+		<div id="timer" class="timer-display"></div>
+		<div id="score"></div>
+		<div th:object="${calculation}" class="calculation-qn" id="calculation-qn">
+			<div class="select-operator mb-5">
+				<select id="select-operator" class="custom-select" onchange="updateOperator()">
+					<option selected disabled> Select an operator </option>
+					<option value="x" selected> x </option>
+					<option value="+"> + </option>
+					<option value="-"> - </option>
+					<option value="/"> / </option>
+				</select>
+			</div>
+		
+		  	<div class="container">
+		    	<div class="row justify-content-center mb-5">
+		      		<div class="flash-card-container mr-3"> <p th:text="*{firstNum}" id="first-operand">2</p></div>
+					<div class="flash-card-container mr-3"> <p id="operator">x</p></div>
+		      		<div class="flash-card-container mr-3"> <p th:text="*{secondNum}" id="second-operand">3</h2></div>
+		        	<div class="flash-card-container mr-3"><p>=</p></div>
+		      		<div class="flash-card-container mr-3"><input type="number" id="userAnswer"></div>
+		    	</div>
+		    	
+		    	<div class="correctResult" id="correctResult"> Answer is correct!</div>
+		    	<div class="wrongResult" id="wrongResult"> 
+					<span> You got it wrong :( </span>
+					<span> The correct answer is 
+						<span  th:text="*{correctAns}" id="correctAnswer"></span>
+					</span>
+				</div>
+	
+		    <div class="row justify-content-center">
+		      <button onclick="checkAnswer()" class="btn btn-primary" id="checkAnsBtn">Check Answer</button>
+			  <button onclick="generateNext()" class="btn btn-primary" id="nextQnBtn">Next Question</button>    		  
+		      <button onclick="generateNew()" class="btn btn-primary" id="restartBtn">Restart</button>    
+		    </div>
+		</div>
+  	</div>
+
+</body>
+
+<script>
+    function updateOperator() {
+		console.log("hello");
+        // Get the selected value from the dropdown
+        var selectedOperator = document.getElementById("select-operator").value;
+        // Update the content of the <p> tag with the selected value
+        document.getElementById("operator").innerText = selectedOperator;
+    }
+    
+    var timer;
+    var timeLeft = 60;
+	
+	function startTimer() {
+		clearInterval(timer);
+		timeLeft = 60;
+		timer = setInterval(updateTimer, 1000);
+		document.getElementById("startTimerBtn").style.display = "none";
+		document.getElementById("calculation-qn").style.display = "block";
+	}
+	
+	function updateTimer() {
+    	document.getElementById("timer").innerHTML = "Time left: " + timeLeft + "s";
+    	timeLeft--;
+	    if (timeLeft <= 0) {
+	        clearInterval(timer);
+	        document.getElementById("timer").innerHTML = "Time's up!";
+	        updateTimesupView();
+	    }
+	}
+    
+    function checkAnswer() {
+        // Make an AJAX request to the backend
+        var xhr = new XMLHttpRequest();
+        var operator = document.getElementById("operator").innerText;
+        var first = document.getElementById("first-operand").innerText;
+        var second = document.getElementById("second-operand").innerText;
+       	
+       	var url = "/getResult?operator=" + encodeURIComponent(operator)
+       	+ "&first=" + encodeURIComponent(first) + "&second=" + encodeURIComponent(second);
+		console.log(url)
+	    xhr.open("GET", url, true);
+	    xhr.setRequestHeader("Content-Type", "application/json");
+	    xhr.onreadystatechange = function() {
+	        if (xhr.readyState === 4) {
+	            if (xhr.status === 200) {
+	                // Handle success
+	                console.log(xhr.responseText);
+                	updateCheckAnswerView(xhr.responseText);
+	            } else {
+	                // Handle error
+	                console.error("Error: " + xhr.status);
+	            }
+	        }
+	    };
+	    xhr.send();
+	}
+	
+	var userAns = document.getElementById("userAnswer");
+	userAns.addEventListener("input", function() {
+		var checkAnsBtn = document.getElementById("checkAnsBtn")
+  		if(this.value.length) {
+			checkAnsBtn.style.display = "block";
+   		} else {
+			checkAnsBtn.style.display = "none";
+		}
+	});
+	userAns.addEventListener("keypress", function (event) {
+		if (event.key == "Enter") {
+			event.preventDefault();
+			if (document.getElementById("checkAnsBtn").style.display != "none") {
+				checkAnswer();			
+			} else if (document.getElementById("nextQnBtn").style.display != "none") {
+				generateNext();
+			} else if (document.getElementById("restartBtn").style.display != "none") {
+				generateNew();
+			}
+		}
+	}) 
+	
+	function updateCheckAnswerView(correctAns) {
+		var correctAnsResult = document.getElementById("correctResult");
+		var wrongAnsResult = document.getElementById("wrongResult");
+		document.getElementById("correctAnswer").innerHTML = correctAns;
+		if (userAns.value != correctAns) {
+			correctAnsResult.style.display = "none"; // display result
+			wrongAnsResult.style.display = "block";
+			score--;
+			score = Math.max(score, 0);
+		} else {
+			correctAnsResult.style.display = "block";
+			wrongAnsResult.style.display = "none";
+			score++;
+		}
+		document.getElementById("score").innerHTML = "Current score: " + score;
+		document.getElementById("nextQnBtn").style.display = "block"; // allow next qn
+        document.getElementById("checkAnsBtn").style.display = "none";	
+		userAnswer.disabled = true; // disable user input
+	}
+	
+	var score = 0;
+	
+	function updateCorrectAnsView() {
+		score++;
+		document.getElementById("score").innerHTML = "Current score: " + score;
+		document.getElementById("nextQnBtn").style.display = "block"; // allow next qn
+        document.getElementById("checkAnsBtn").style.display = "none";	
+		userAnswer.disabled = true; // disable user input
+	}
+	
+	function updateTimesupView() {
+		score = 0;
+		document.getElementById("score").innerHTML = "Current score: " + score;
+		document.getElementById("restartBtn").style.display = "block";
+        document.getElementById("checkAnsBtn").style.display = "none";	
+		userAns.disabled = true;
+		clearInterval(timer);
+	}
+	
+	
+	function generateNext() {
+		// Make an AJAX request to the backend
+        var xhr = new XMLHttpRequest();
+        var operator = document.getElementById("operator").innerText;
+       	console.log(operator)
+       	var url = "/getNew?operator=" + encodeURIComponent(operator);
+	    xhr.open("GET", url, true);
+	    xhr.setRequestHeader("Content-Type", "application/json");
+	    xhr.onreadystatechange = function() {
+	        if (xhr.readyState === 4) {
+	            if (xhr.status === 200) {
+	                // Handle success
+	                console.log(xhr.responseText);
+	                resetView(JSON.parse(xhr.responseText));
+	            } else {
+	                // Handle error
+	                console.error("Error: " + xhr.status);
+	            }
+	        }
+	    };
+	    xhr.send();
+	}
+	
+	function generateNew() {
+		// Make an AJAX request to the backend
+        var xhr = new XMLHttpRequest();
+        var operator = document.getElementById("operator").innerText;
+	    xhr.open("GET", "/getNew", true);
+	    xhr.setRequestHeader("Content-Type", "application/json");
+	    xhr.onreadystatechange = function() {
+	        if (xhr.readyState === 4) {
+	            if (xhr.status === 200) {
+	                // Handle success
+	                console.log(xhr.responseText);
+	                resetView(JSON.parse(xhr.responseText));
+	                startTimer();
+	            } else {
+	                // Handle error
+	                console.error("Error: " + xhr.status);
+	            }
+	        }
+	    };
+	    xhr.send();
+	}
+	
+	function resetView(json) {
+		userAns.disabled = false;
+        document.getElementById("first-operand").innerText = json.firstNum;
+        document.getElementById("second-operand").innerText = json.secondNum;
+        document.getElementById("operator").innerText = json.operator;
+        document.getElementById("userAnswer").value = '';
+        document.getElementById("nextQnBtn").style.display = "none";
+        document.getElementById("correctResult").style.display = "none";
+        document.getElementById("wrongResult").style.display = "none";
+        document.getElementById("restartBtn").style.display = "none";
+		document.getElementById("startTimerBtn").style.display = "none";
+	}
+	
+
+	
+</script>
+</html>

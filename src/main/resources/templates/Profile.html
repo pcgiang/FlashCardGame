@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .profile-container {
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-field {
+            margin-bottom: 15px;
+        }
+        .profile-field label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+        }
+        .profile-field span {
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+
+<div class="profile-container" th:object="${user}">
+    <div class="profile-field">
+        <label for="username">Username:</label>
+        <span id="username" th:text="${user.username}">john_doe</span>
+    </div>
+    <div class="profile-field">
+        <label for="name">Name:</label>
+        <span id="name" th:text="${user.name}">John Doe</span>
+    </div>
+    <div class="profile-field">
+        <label for="age">Age:</label>
+        <span id="age" th:text="${user.age}">25</span>
+    </div>
+    <div class="profile-field">
+        <label for="favorite-color">Favorite Color:</label>
+        <select id="favorite-color" class="custom-select">
+			<option value="pink" th:selected="${user.favoriteColor == 'pink'}"> Pink </option>
+			<option value="blue" th:selected="${user.favoriteColor == 'blue'}"> Blue </option>
+			<option value="purple" th:selected="${user.favoriteColor == 'purple'}"> Purple </option>
+			<option value="green" th:selected="${user.favoriteColor == 'green'}"> Green </option>
+			<option value="red" th:selected="${user.favoriteColor == 'red'}"> Red </option>
+			<option value="yellow" th:selected="${user.favoriteColor == 'yellow'}"> Yellow </option>
+			<option value="orange" th:selected="${user.favoriteColor == 'orange'}"> Orange </option>
+		</select>
+    </div>
+</div>
+
+</body>
+</html>

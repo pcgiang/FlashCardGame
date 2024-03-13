@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Create Profile </title>
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		<style>
+			.setup-profile-container {
+				margin-top: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="setup-profile-container">
+			<div class="row justify-content-center">
+				<form action="#" method="post" th:action="@{processCreateProfile}" th:object="${studentProfile}" class="col-md-4">
+				<h2> Create your profile </h2>
+					<div class="mb-3">
+				    	<label for="name" class="form-label"> Your name: </label>
+				    	<input th:field="*{name}" type="text" class="form-control" id="name">
+				  	</div>
+				  	<div class="mb-3">
+				    	<label for="age" class="form-label">Password</label>
+				    	<input th:field="*{age}" type="password" class="form-control" id="age">
+				  	</div>
+				  
+					<div class="mb-3">
+ 						<label for="favorite-color">Favorite Color:</label>
+    					<select id="favorite-color" class="custom-select">
+							<option selected disabled> Select your favourite color </option>
+							<option value="pink"> Pink </option>
+							<option value="blue"> Blue </option>
+							<option value="purple"> Purple </option>
+							<option value="green"> Green </option>
+							<option value="red"> Red </option>
+							<option value="yellow"> Yellow </option>
+							<option value="orange"> Orange </option>
+						</select>
+					</div>
+
+				  <button type="submit" class="btn btn-primary"> Create Profile </button>
+				</form>					
+			</div>
+			
+		</div>
+	</body>
+
+</html>

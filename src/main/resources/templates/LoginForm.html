@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> Log in </title>
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		<style>
+			.login-container {
+				margin-top: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="login-container">
+			<div class="row justify-content-center">
+				<form action="#" method="post" th:action="@{login}" th:object="${loginModel}" class="col-md-4">
+				<h2> Log in Form</h2>
+				  <div class="mb-3">
+				    <label for="username" class="form-label"> Username: </label>
+				    <input th:field="*{username}" type="text" class="form-control mb-2" id="username">
+				    <p class="alert alert-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+				  </div>
+				  <div class="mb-3">
+				    <label for="password" class="form-label">Password</label>
+				    <input th:field="*{password}" type="password" class="form-control mb-2" id="password">
+				    <p class="alert alert-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+				  </div>
+				  <button type="submit" class="btn btn-primary"> Log in </button>
+				</form>					
+			</div>
+			
+		</div>
+	</body>
+
+</html>
